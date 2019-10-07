@@ -1,0 +1,910 @@
+<h1 id='getting-started'>Getting Started</h1>
+<p>Welcome to the Forte Platform API! The Forte Platform API is the primary access point for interacting and integrating with Forte components. Its host of APIs provides tools to read and write transactions on the blockchain, and provides access to Wallet and Marketplace functionality. </p>
+
+<p>This section will get you started using the Platform API. You will create a game, create Game Coins, Stackable and Unique Assets for your game, and put them to use in a practical way.</p>
+
+<aside class="notice">
+Check out the [glossary](#glossary) to help get you acquainted with some of the terms used in the API documentation.
+ </aside>
+ 
+<h2 id='overview'>Overview</h2>
+<p>Platform-API is a restful API that runs on port 8088.</p>
+
+<p><strong>Default URL</strong>: <code>http://0.0.0.0:8088/</code></p>
+
+<ul>
+<li>Installing the correct components</li>
+<li>Build Docker Image</li>
+<li>Starting the Cluster</li>
+<li>Startup Script</li>
+<li>First API Call</li>
+<li>Create a game, get API key</li>
+<li>Game Info</li>
+<li>Developer Wallet Balance</li>
+<li>Create a Game User</li>
+<li>Game all Game Users</li>
+<li>Get a User&#39;s Balance</li>
+<li>Transfer Game Coins</li>
+<li>User Transaction History</li>
+<li>Transfer Game Coins Between Users</li>
+<li>Transfer an Unique Assets</li>
+<li>Transfer Game Coins into a Unique Asset</li>
+<li>Check Unique Asset Balance (and retreive metadata)</li>
+<li>Create a Token Pool Wallet</li>
+</ul>
+<h2 id='installing-the-correct-components'>Installing the correct components</h2>
+<p><strong>Docker</strong> with <strong>docker-compose</strong> must be installed on your machine.</p>
+
+<p><a href="https://docs.docker.com/docker-for-mac/install/">Install Docker for Mac</a></p>
+
+<p>The docker cli is installed during the first run of the docker application.</p>
+<h2 id='build-docker-image'>Build Docker Image</h2>
+<p>First, download the <code>build-image.sh</code> script:</p>
+
+<p><code>curl -O &quot;http://forte-forte-platform.s3.us-east-2.amazonaws.com/&lt;%= config[:version] %&gt;/build-image.sh&quot;</code></p>
+
+<p>Then, change the permissions to allow the script to execute:</p>
+
+<p><code>sudo chmod 775 build-image.sh</code></p>
+
+<p>Lastly, build the image by running the <code>build-image.sh</code> script and following the prompts. You can get the version number from your Forte representative.
+This process downloads and builds the image from the AWS bucket, so it may take a while depending on your internet connection.</p>
+
+<p><code>./build-image.sh</code></p>
+<h2 id='starting-the-cluster'>Starting the Cluster</h2>
+<p>Now run the workstation <code>start.sh</code> script. This will spin up the Platform containers.</p>
+
+<p><code>./build/workstation/start.sh</code></p>
+<h2 id='startup-script'>Startup Script</h2>
+<p>To use the platform-api, you&#39;ll need to run some startup tasks. Open another terminal and navigate to the project root (where you were at on the previous step).
+Then run the Platform <code>start.sh</code> script to get your environment set up:</p>
+
+<p><code>./build/start.sh</code></p>
+<h2 id='first-api-call'>First API Call</h2><pre class="highlight shell tab-shell"><code>curl http://0.0.0.0:8088/health
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w"> </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Let&#39;s see if it&#39;s working...</p>
+<h3 id='http-request'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8088/health</code></p>
+<h2 id='create-a-game-get-api-key'>Create a game, get API key</h2><pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+    http://0.0.0.0:8088/api/v1/game <span class="se">\</span>
+    -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+    -H <span class="s1">'Authorization: Bearer tempKey'</span> <span class="se">\</span>
+    -d <span class="s1">'{
+    "name": "newGame",
+    "email": "test@platform.rules",
+    "password": "YOUR_PASSWORD",
+    "initial_tokens": 1000000,
+    "blockchain_url": "http://game_client:8545",
+  "bonding_curve_shape": "linear",
+    "initial_slope": 1.0
+    }'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8229154f-ebd1-4448-9408-e62b5a5f6685"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"newGame"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"api_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6625d19e-dd7a-4566-a590-0a84ad121b3f"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"dev_user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d03356a2-b262-4359-8b6a-21baf8455eb6"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"contracts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c7276e75-a18d-46b5-b3b4-acbd02de9888"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"35ccc0fb-fd72-43f7-8e5c-7a7dafffc5ab"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc20"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x4582378879a4759e23c9d311cc3d0a40ae3a2e01"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0dbbdf0b-19ab-4aa0-b915-292b729774d7"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"35ccc0fb-fd72-43f7-8e5c-7a7dafffc5ab"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc721"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x380f6fa5ac8b7e4e9ab7b0c0020889cd43d204cd"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>We&#39;ll start by creating a new game. The <code>/game</code> endpoint automatically creates a Developer Wallet and mints (creates) a given amount of Game Coins (ERC-20 tokens) for your game to use as the foundation currency. In addition, this endpoint creates the necessary contracts and Wallet services to execute transactions in your game.</p>
+
+<p>Use the example to create a game called &quot;newGame&quot; with 1,000,000 Game Coins(<code>initial_tokens</code>). If you decide you want more Game Coins later you can use the <code>/token/mint</code> endpoint.</p>
+
+<p>Take note of the <code>dev_user_id</code>. We will use this to transact with the newly created Developer Wallet and players.</p>
+
+<p>Set the following Parameters:</p>
+
+<ul>
+<li><code>bonding_curve_shape</code> = <code>linear</code> - This will use a linear pricing curve for when we stake Game Coins to Assets. </li>
+<li><code>initial_slope</code> = <code>1.0</code> - This is the slope of the linear pricing curve to change the Game Coin price per unit of supply. More on pricing curves and staking Game Coins later.</li>
+</ul>
+
+<aside class="notice">The <code>bonding_curve_shape</code> parameter can be either <code>'linear'</code>, which will use the <code>slope</code> parameter to create a linear pricing curve, or <code>'sigmoidal'</code>, which will deploy a pre-defined sigmoidal shaped pricing curve.</aside>
+
+<aside class="notice">The <code>blockchain_url</code> parameter refers to the docker-compose parity instance. Unless you know what you're doing, you should use the default value provided in the example.</aside>
+
+<p><strong>Note: This command uses an &#39;Authorization&#39; header with the value &#39;tempKey&#39; because a valid api key does not exist prior to game creation. &#39;tempKey&#39; matches the value found in the environment variable <code>APP_TOKEN_NAME</code>. You will need to include the &#39;Authorization&#39; header with the api key value returned by this call when authenticating every call following this.</strong></p>
+<h3 id='http-request-2'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game</code></p>
+<h3 id='body-parameters'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>Name of your game</td>
+</tr>
+<tr>
+<td>email</td>
+<td>Your email address</td>
+</tr>
+<tr>
+<td>password</td>
+<td>Your account password</td>
+</tr>
+<tr>
+<td>initial_tokens</td>
+<td>Amount of tokens to start with</td>
+</tr>
+<tr>
+<td>blockchain_url</td>
+<td>URL of blockchain to interface with (advanced)</td>
+</tr>
+<tr>
+<td>bonding_curve_shape</td>
+<td>The shape of bonding curve</td>
+</tr>
+<tr>
+<td>initial_slope</td>
+<td>The change in price for each unit of supply</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Set environment variables</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nb">export </span><span class="nv">GAME_ID</span><span class="o">=</span>8229154f-ebd1-4448-9408-e62b5a5f6685
+<span class="nb">export </span><span class="nv">API_KEY</span><span class="o">=</span>6625d19e-dd7a-4566-a590-0a84ad121b3f
+</code></pre>
+<p>For brevity, we set an environment variable for our <code>GAME_ID</code> and <code>API_KEY</code> based on the response of the previous request.</p>
+<h2 id='game-info'>Game Info</h2><pre class="highlight shell tab-shell"><code>curl -X GET <span class="se">\</span>
+    http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span> <span class="se">\</span>
+    -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8229154f-ebd1-4448-9408-e62b5a5f6685"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"newGame"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"api_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6625d19e-dd7a-4566-a590-0a84ad121b3f"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"dev_user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d03356a2-b262-4359-8b6a-21baf8455eb6"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"contracts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c7276e75-a18d-46b5-b3b4-acbd02de9888"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"35ccc0fb-fd72-43f7-8e5c-7a7dafffc5ab"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc20"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x4582378879a4759e23c9d311cc3d0a40ae3a2e01"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0dbbdf0b-19ab-4aa0-b915-292b729774d7"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"35ccc0fb-fd72-43f7-8e5c-7a7dafffc5ab"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc721"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x380f6fa5ac8b7e4e9ab7b0c0020889cd43d204cd"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Now that we have created a game, we can use this endpoint to return detailed information about our game by passing the <code>GAME_ID</code>. You can view an example of the returned JSON structure. </p>
+<h3 id='http-request-3'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;</code></p>
+<h3 id='url-parameters'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>The ID of the game to retrieve</td>
+</tr>
+</tbody></table>
+<h2 id='developer-wallet-balance'>Developer Wallet Balance</h2><pre class="highlight shell tab-shell"><code>curl -X GET <span class="se">\</span>
+    http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/developer/wallet <span class="se">\</span>
+    -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TOK"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000000</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token_name"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">190177113409627147017492480768293327364543271987</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"stackables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1020847100762815390390123822295304634368"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"340282366920938463463374607431768211456"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"680564733841876926926749214863536422912"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>When we created our game, a Developer Wallet was created for us. The Developer Wallet account holds, manages and transfers Game Coins and Items between your developer account <code>dev_user_id</code> and player Wallet accounts. When you create a game, the Game Coins created are minted to your Developer Wallet account. This endpoint gets the balance of your Developer Wallet account.</p>
+
+<p>The <code>balance</code> should reflect the number of Game Coins we set as our <code>initial_tokens</code>, &quot;1000000&quot; when we created our game. </p>
+<h3 id='http-request-4'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/developer/wallet</code></p>
+<h3 id='url-parameters-2'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>The ID of the game to retrieve the developer balance of.</td>
+</tr>
+</tbody></table>
+<h2 id='create-a-user-player'>Create a USer (Player)</h2><pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+    http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/user <span class="se">\</span>
+    -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+    -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+    -d <span class="s1">'{
+    "email": "brock@firstfoundry.co"
+    }'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6753d59d-9fa3-44f8-bfda-29d64ae7f152"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8229154f-ebd1-4448-9408-e62b5a5f6685"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"brock@firstfoundry.co"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xe0DA6ab11545043eF141Df24A9211b7792356D0c"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"wallet_user_uid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f5cca3b4-788e-4fa7-be98-cf1f6ac5972f"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:25:34.555304"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:25:34.555304"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This endpoint creates a new player for your game and automatically creates a Wallet address to enable the player to transact and hold Game Coins, Stackable and Unique Assets. Creating a player will also generate an id used to pass as the player <code>USER_ID</code> to execute player actions including, initiating transactions and querying player details. </p>
+
+<p>The response includes the following: </p>
+
+<ul>
+<li><code>id</code> - This is the <code>USER_ID</code> for the individual player created. This ID can be used to initiate transactions and query player information. </li>
+<li><code>game_id</code> - The Game ID associated with the created player. </li>
+<li><code>email</code> - <strong>OPTIONAL</strong> This is an optional field and can be left empty. The email address of the created player.</li>
+<li><code>wallet_address</code> - The blockchain wallet address. Note, the USER_ID is used to initiate transactions. </li>
+<li><code>wallet_user_uid</code> - This id is created by the Wallet and can be ignored and not to be confused with the “id” or USER_ID. </li>
+<li><code>created_by</code> - The Developer Wallet dev_user_id that created the User.</li>
+<li><code>created_at</code> - UTC date of when the player was created. </li>
+<li><code>updated_by</code> - The Developer Wallet dev_user_id that last updated the User.</li>
+<li><code>updated_at</code> - UTC date of when the player was last updated. </li>
+</ul>
+<h3 id='http-request-5'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/user</code></p>
+<h3 id='url-parameters-3'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>The ID of the game to create a user for</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-2'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>User&#39;s full name</td>
+</tr>
+<tr>
+<td>email</td>
+<td>(Optional) User&#39;s email address</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Set environment variable</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nb">export </span><span class="nv">USER_ID</span><span class="o">=</span>6753d59d-9fa3-44f8-bfda-29d64ae7f152
+</code></pre>
+<p>Let&#39;s set another environment variable for our user ID.</p>
+<h2 id='get-all-game-users'>Get all Game Users</h2><pre class="highlight shell tab-shell"><code>curl -X GET <span class="se">\</span>
+    http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/user <span class="se">\</span>
+    -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+    -H <span class="s1">'Content-Type: application/json'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"users"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b9c78b96-d9da-41fc-8846-e2393c0b7376"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dave@fakeemail.com"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x7E0135f53AB0A9D4F614913B0c200a0f97d627B9"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3d697552-6e6d-41d8-ad5f-13229f3932d8"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buster@totallyrealemail.com"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x76CF00FDe51c8FC44464BbEa220049c67F815FaE"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>To view all players that belong to a particular game, use the <code>/game/{GAME_ID}/user</code> endpoint.</p>
+<h3 id='http-request-6'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/user</code></p>
+<h3 id='url-parameters-4'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>The ID of the game to retrieve users from</td>
+</tr>
+</tbody></table>
+<h2 id='get-a-user-39-s-balance'>Get a User&#39;s Balance</h2><pre class="highlight shell tab-shell"><code>curl -X GET <span class="se">\</span>
+  http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/user/<span class="nv">$USER_ID</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TOK"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token_name"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"190177113409627147017492480768293327364543271987"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"stackables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1020847100762815390390123822295304634368"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"340282366920938463463374607431768211456"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"680564733841876926926749214863536422912"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Returns the balance for all Game Coin, Stackables and Unique Assets for a given <code>USER_ID</code>.</p>
+<h3 id='http-request-7'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/user/&lt;USER_ID&gt;</code></p>
+<h3 id='url-parameters-5'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>USER_ID</td>
+<td>ID of the user to check balance of</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Set environment variable</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nb">export </span><span class="nv">ITEM_ID</span><span class="o">=</span>46340168683920357099280855628767929578552584533
+</code></pre>
+<p>Let&#39;s set an environment variable for our item ID as well.</p>
+<h2 id='transfer-game-coins-from-dev-to-user'>Transfer Game Coins From Dev to User</h2><pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/developer/token/transfer <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{
+    "user_id_to": "'</span><span class="s2">"</span><span class="nv">$USER_ID</span><span class="s2">"</span><span class="s1">'",
+      "amount": 100
+}'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns 200 OK:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Now that you have a user to transact with, you can send them some Game Coins from the Developer Wallet. This endpoint sends Game Coins from the &quot;Developer Wallet&quot; to players <code>user_id</code>. </p>
+
+<p>Let&#39;s send an <code>amount</code> of 100 Game Coins to the previously created player <code>user_id</code>. </p>
+<h3 id='http-request-8'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/developer/token/transfer</code></p>
+<h3 id='url-parameters-6'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-3'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_to</td>
+<td>ID of user to transfer tokens to</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number of tokens to transfer</td>
+</tr>
+</tbody></table>
+<h2 id='user-transaction-history'>User Transaction History</h2><pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/user/<span class="nv">$USER_ID</span>/transactions <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{
+    "start_date": "2019-04-30T22:32:45.192270Z",
+    "end_date": "2019-05-07T22:32:45.192357Z",
+    "page": 1,
+    "per_page": 10
+}'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"transaction_history"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"transaction_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"388892a0-c843-4cc4-b94d-45a4679ad4c5"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"wallet_from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x2bCf16681ce5a244b01A7E619Cce31577ec47089"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"wallet_to"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xE42CDaEd77c4E6DEDB613fBF9f0De823804EFf4c"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ERC20"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{</span><span class="se">\"</span><span class="s2">amount</span><span class="se">\"</span><span class="s2">: 10}"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"transaction_hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x00eac78f5d8902fcaa6b1e8ddb8f580dfdc610468e21b98e403b06a705075053"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"ip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0.0.0"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Let&#39;s get the transaction we just made by viewing the transaction history for our player using this endpoint to return a user&#39;s transaction history. Make sure to enter appropriate UTC-encoded date formats for the transaction range.</p>
+<h3 id='http-request-9'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/user/&lt;USER_ID&gt;/transactions</code></p>
+<h3 id='url-parameters-7'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>USER_ID</td>
+<td>ID of user to get transactions for</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-4'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>start_date</td>
+<td>UTC-encoded timestamp indicating date/time to begin query</td>
+</tr>
+<tr>
+<td>end_date</td>
+<td>UTC-encoded timestamp indicating date/time to end query</td>
+</tr>
+<tr>
+<td>page</td>
+<td>Pagination page, starts at 1</td>
+</tr>
+<tr>
+<td>per_page</td>
+<td>Number of results to return per page</td>
+</tr>
+</tbody></table>
+<h2 id='transfer-tokens-between-users'>Transfer Tokens Between Users</h2><pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/token/transfer <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{
+    "user_id_from": "'</span><span class="s2">"</span><span class="nv">$USER_ID</span><span class="s2">"</span><span class="s1">'",
+    "user_id_to": "'</span><span class="s2">"</span><span class="nv">$USER_ID</span><span class="s2">"</span><span class="s1">'",
+    "amount": 1
+}'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns 200 OK:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Similar to transferring tokens between players and the Developer Wallet, you can transfer tokens between two players as a peer-to-peer transaction using this endpoint. </p>
+
+<p>To transact between users, first create another game user, make a note of the new users user_id and transfer a few tokens between the previously created user and the new user.</p>
+<h3 id='http-request-10'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/token/transfer</code></p>
+<h3 id='url-parameters-8'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-5'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>ID of user to send tokens from</td>
+</tr>
+<tr>
+<td>user_id_to</td>
+<td>ID of user to receive tokens</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number of tokens to send</td>
+</tr>
+</tbody></table>
+<h2 id='mint-a-unique-asset'>Mint a Unique Asset</h2><pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/item/mint <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{
+    "user_id_to": "'</span><span class="s2">"</span><span class="nv">$USER_ID</span><span class="s2">"</span><span class="s1">'",
+    "creator_stake": 100,
+    "metadata": "{fire_power: 1000, max_cooldown: 5}",
+    "key":"item_key"
+  }'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns 200 OK:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>This endpoint allows you to create new Unique Assets. These Unique Assets (or Items) are minted as ERC-721 Tokens. You can define <code>metadata</code> to determine the Item’s attributes (e.g. fire power, cool down times, etc.). All game assets will require developers to stake Game Coins when the asset is minted. </p>
+
+<p>We will stake 100 Game Coins from the Developer Wallet in the <code>creator_stake</code> Parameter.</p>
+<h3 id='http-request-11'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/item/mint</code></p>
+<h3 id='url-parameters-9'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>ID of item to transfer</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-6'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>ID of user to mint item to</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>String</td>
+<td>JSON-encoded metadata</td>
+</tr>
+<tr>
+<td>key</td>
+<td>String</td>
+<td>Optional key that can be used to fetch metadata for the item</td>
+</tr>
+<tr>
+<td>creator_stake</td>
+<td>Number</td>
+<td>The inital amount of ERC-20s deposited into the item</td>
+</tr>
+</tbody></table>
+<h2 id='transfer-a-unique-asset'>Transfer a Unique Asset</h2><pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/item/<span class="nv">$ITEM_ID</span>/transfer <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{
+  "user_id_from": "'</span><span class="s2">"</span><span class="nv">$USER_ID</span><span class="s2">"</span><span class="s1">'",
+  "user_id_to": "'</span><span class="s2">"</span><span class="nv">$USER_ID</span><span class="s2">"</span><span class="s1">'"
+}'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns 200 OK:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Now that we have created a Unique Asset, we can transfer it, along with the 100 Game Coins set in the <code>creator_stake</code>, to another player.</p>
+<h3 id='http-request-12'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/item/&lt;ITEM_ID&gt;/transfer</code></p>
+<h3 id='url-parameters-10'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>ID of item to transfer</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-7'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>ID of user to transfer NFT from</td>
+</tr>
+<tr>
+<td>user_id_to</td>
+<td>ID of user to transfer NFT to</td>
+</tr>
+</tbody></table>
+<h2 id='transfer-game-coins-into-a-unique-asset'>Transfer Game Coins into a Unique Asset</h2>
+<p>When we created our game, we minted 1,000,000 tokens to our developer account. In <a href="#mint-an-nft">Mint an NFT</a> we minted an NFT and gave it to a user account.</p>
+
+<p>A key feature of our NFTs is that they can <em>hold their own tokens</em>. This allows NFTs to hold value.</p>
+<pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  http://localhost:8088/api/v1/game/<span class="nv">$GAME_ID</span>/developer/token/deposit <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{"token_id": "'</span><span class="s2">"</span><span class="nv">$ITEM_ID</span><span class="s2">"</span><span class="s1">'","amount": 1}'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>A key feature of our Assets is that they can hold their own Game Coins. This allows Assets to hold value, creating a minimum value. </p>
+
+<p>Now, let&#39;s transfer some Game Coins from the Developer Wallet Account into the created Unique Asset by defining the <code>token_id</code> of the created Unique Asset and send an <code>amount</code> of &quot;1&quot; Game Coin to the Asset.</p>
+<h3 id='http-request-13'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/developer/token/deposit</code></p>
+<h3 id='url-parameters-11'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-8'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>token_id</td>
+<td>ID of NFT to deposit tokens into</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number of tokens to deposit into NFT</td>
+</tr>
+</tbody></table>
+<h2 id='get-unique-asset-balance-and-metadata'>Get Unique Asset Balance and metadata</h2>
+<p>We can check the balance and retrieve metadata for our Unique Asset by passing the <code>GAME_ID</code> and <code>ITEM_ID</code> parameters in the URL.</p>
+<pre class="highlight shell tab-shell"><code>curl -X GET <span class="se">\</span>
+  http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/item/<span class="nv">$ITEM_ID</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"874619939929244439599189760038633387039161848844"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9b10fa3d-cf6c-4a22-9c4a-f0356cc3de29"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"ERC20BalanceCondensed"</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TOK"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"ERC20BalanceCondensed"</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"fire_power"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"max_cooldown"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='url-parameters-12'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>ID of item to get balance of</td>
+</tr>
+</tbody></table>
+<h2 id='create-a-token-pool-wallet'>Create a Token Pool Wallet</h2><pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  http://0.0.0.0:8088/api/v1/game/<span class="nv">$GAME_ID</span>/developer/wallet/pool <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{"name": "Token Pool Wallet Name","max_tokens": 100, "interval": "0 0 0 1/1 * ? *"}'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"token_pool_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x84ca43b1836ef70175d0974e70094ab5d4f4d4ba"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"30f3c17c-b3c3-40b5-b45e-e0d246f4a25f"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"max_tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"interval"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0 0 0 1/1 * ? *"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The Token Pool Wallet is a secondary Wallet owned by the Developer Wallet account, designed to automatically refill and distribute tokens to users. Multiple Token Pool Wallets can be created to enable various game transactions and functions.  </p>
+
+<p>Working with a limited amount of Game Coins, the main Token Pool Wallet will not run out. In the <code>interval</code> field, a developer may specify a cron expression to set how often a pool will be refilled. Transaction requests will be rejected if the Token Pool Wallet token supply is depleted. The <code>max_tokens</code> field sets the maximum number of tokens able to transfer to a Token Pool Wallet. Once this <code>max_tokens</code> is reached tokens will no longer automatically transfer to the Token Pool Wallet until this field is below the set max.</p>
+
+<p>For more information about cron expressions check out
+<a href="http://www.cronmaker.com/">cronmaker</a>.</p>
+<h3 id='http-request-14'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/developer/wallet/pool</code></p>
+<h3 id='url-parameters-13'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-9'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>Name of token pool wallet</td>
+</tr>
+<tr>
+<td>max_tokens</td>
+<td>Maximum number of tokens to transfer into token pool</td>
+</tr>
+<tr>
+<td>interval</td>
+<td>cron expression; how often the pool gets refilled</td>
+</tr>
+</tbody></table>

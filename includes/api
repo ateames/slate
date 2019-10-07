@@ -1,0 +1,2070 @@
+<h1 id='api'>API</h1><h2 id='authentication'>Authentication</h2><pre class="highlight shell tab-shell"><code>curl <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer API_KEY"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+http://&lt;endpoint&gt;:8088
+</code></pre>
+<p>Most API calls require the following headers, where <code>API_KEY</code> is the key in the db associated with the appropriate game.</p>
+
+<p>To ease the burden of testing, you can set a global <code>API_KEY</code> using the <code>APP_TOKEN_NAME</code> environment variable.</p>
+
+<p>Throughout this document, these headers will be represented as <code>$headers</code>.</p>
+
+<p>Where different headers are required (i.e. when creating a game or when retrieving all registered game data) the differences are documented.</p>
+<h2 id='async-routes'>Async Routes</h2>
+<p>Every POST/PUT endpoint (with the exception of &quot;create game&quot; and &quot;create forte game&quot;) has an async counterpart that returns a <code>202 OK</code> instead of a body. Async routes require an <code>order_id</code> (string) parameter in the request body, and their routes are prefixed with <code>/async</code>.</p>
+<h3 id='body-parameters'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>existing params</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>order_id</td>
+<td>String</td>
+<td>Unique user-defined ID to track request status</td>
+</tr>
+</tbody></table>
+
+<p>Each of these routes is highlighted with a success tag containing the async route, like so:</p>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/{route}</code>
+</aside>
+<h2 id='create-a-game'>Create a Game</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'
+{
+    "name": "First Game",
+    "email": "dev@forte.io",
+    "password": "jibberish",
+    "initial_tokens": 1000000,
+    "blockchain_url": "http://game_client:8545",
+    "initial_slope": 1.0,
+    "bonding_curve_shape": "linear"
+}'</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Bearer APP_TOKEN_NAME"</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  -X POST http://localhost:8088/api/v1/game
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fba7ee59-9fa3-40de-bcd7-03d51855e978"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"api_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7044ae8b-82ec-460d-b7ba-708ccd99d029"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"dev_user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"contracts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0def97ea-002f-4ad3-8745-51662cfd9beb"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ad0f1e8f-1b59-43c7-aef1-56ccf00d4212"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc20_tbc"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xd0b1bd8bbca5f2fa5c6c7a3dd6577a1d8f02f5dd"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3eab5ae3-4f69-47c6-a659-ad7e55750346"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-07-10T19:16:24.953187"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3eab5ae3-4f69-47c6-a659-ad7e55750346"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-07-10T19:16:24.953187"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b82c0b66-7f20-4a64-b7c0-e21859c1d669"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc20"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x7974514b15b454146a34979b6e68b7e88dd00ed8"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.749144"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.749144"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d593cd5b-20cf-4c0b-9882-55f537b6bc2d"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc721"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x65cfc77ee8adc4a76bfb08324c670d69c03be544"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.768967"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.768967"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d2991f27-824b-4d67-851e-867e348e5837"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ad0f1e8f-1b59-43c7-aef1-56ccf00d4212"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc1155"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x43c3c41a8dbf7e79939a621537139ce4fc15b1c0"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3eab5ae3-4f69-47c6-a659-ad7e55750346"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-07-10T19:16:24.996795"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3eab5ae3-4f69-47c6-a659-ad7e55750346"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-07-10T19:16:24.996795"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>Invalid Parameter Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"Name must be at least 2 characters in length."</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"Number must be between 0 and 1000."</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The <code>/game</code> endpoint automatically creates a Developer Wallet and mints (creates) a given amount of Game Coins (ERC-20 tokens) for your game to use as the foundation currency. In addition, this endpoint creates the necessary contracts and Wallet services to execute transactions in your game. </p>
+
+<p>This request will execute the following:</p>
+
+<ul>
+<li>Generate a game object and store it in the Forte DB</li>
+<li>Register a game with the Wallet API service</li>
+<li>Register a new Developer Wallet and generate a <code>dev_user_id</code> used to to transact with and query the Developer Wallet</li>
+<li>Provisions an ERC-20 contract to be used as the game&#39;s Game Coin currency</li>
+<li>Provisions an ERC-20 contract with token bonding curve functionality to facilitate Game Coin transactions with the Automated Marketplace</li>
+<li>Provisions an ERC-721 contract to be used for managing Unique Assets</li>
+<li>Provisions an ERC-1155 contract to be used for managing Stackable Assets</li>
+</ul>
+
+<p><strong>Note: This command uses authorization which differs from the standard used for most other commands. Since no valid api key exists prior to game creation, the value found in the environment variable APP_TOKEN_NAME must be used in the authorization header instead.</strong></p>
+<h3 id='http-request'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game</code></p>
+<h3 id='body-parameters-2'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>Name of game</td>
+</tr>
+<tr>
+<td>email</td>
+<td>String</td>
+<td>Developer&#39;s email address</td>
+</tr>
+<tr>
+<td>password</td>
+<td>String</td>
+<td>Developer password</td>
+</tr>
+<tr>
+<td>initial_tokens</td>
+<td>Number</td>
+<td>Number of tokens to start with</td>
+</tr>
+<tr>
+<td>blockchain_url</td>
+<td>String</td>
+<td>URL of blockchain to connect to</td>
+</tr>
+<tr>
+<td>bonding_curve_shape</td>
+<td>String</td>
+<td>The shape of bonding curve</td>
+</tr>
+<tr>
+<td>initial_slope</td>
+<td>Number</td>
+<td>Initial slope of bonding curve</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">The <code>blockchain_url</code> parameter refers to the docker-compose parity instance. Unless you know what you're doing, you should use the default value provided in the example.</aside>
+
+<aside class="notice">The <code>bonding_curve_shape</code> parameter can be either <code>'linear'</code>, which will use the <code>slope</code> parameter to create a linear pricing curve, or <code>'sigmoidal'</code>, which will deploy a pre-defined sigmoidal shaped pricing curve.</aside>
+<h2 id='get-a-game'>Get a Game</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> http://localhost:8088/api/v1/game/d03356a2-b262-4359-8b6a-21baf8455eb
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fba7ee59-9fa3-40de-bcd7-03d51855e978"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"api_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7044ae8b-82ec-460d-b7ba-708ccd99d029"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"dev_user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"contracts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b82c0b66-7f20-4a64-b7c0-e21859c1d669"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc20"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x7974514b15b454146a34979b6e68b7e88dd00ed8"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.749144"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.749144"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d593cd5b-20cf-4c0b-9882-55f537b6bc2d"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc721"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x65cfc77ee8adc4a76bfb08324c670d69c03be544"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.768967"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.768967"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Retrieve details for a specific game by passing the <code>GAME_ID</code>.</p>
+<h3 id='http-request-2'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;</code></p>
+<h3 id='url-parameters'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game to retrieve</td>
+</tr>
+</tbody></table>
+<h2 id='get-all-games'>Get All Games</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="s2">"Authorization: Bearer APP_TOKEN_NAME"</span> http://localhost:8088/api/v1/game
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"35ccc0fb-fd72-43f7-8e5c-7a7dafffc5ab"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"newGame"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"api_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f3663cad-1bf2-4c63-93a0-5834b4cb2213"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"dev_user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d03356a2-b262-4359-8b6a-21baf8455eb6"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"contracts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c7276e75-a18d-46b5-b3b4-acbd02de9888"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"35ccc0fb-fd72-43f7-8e5c-7a7dafffc5ab"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc20"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x4582378879a4759e23c9d311cc3d0a40ae3a2e01"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0dbbdf0b-19ab-4aa0-b915-292b729774d7"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"35ccc0fb-fd72-43f7-8e5c-7a7dafffc5ab"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc721"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x380f6fa5ac8b7e4e9ab7b0c0020889cd43d204cd"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"13d86a47-abcf-457c-9531-05fc11c8d5ee"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-03T16:51:58.051444Z"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fba7ee59-9fa3-40de-bcd7-03d51855e978"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"api_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7044ae8b-82ec-460d-b7ba-708ccd99d029"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"dev_user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"contracts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b82c0b66-7f20-4a64-b7c0-e21859c1d669"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc20"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x7974514b15b454146a34979b6e68b7e88dd00ed8"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.749144"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.749144"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d593cd5b-20cf-4c0b-9882-55f537b6bc2d"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"erc721"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x65cfc77ee8adc4a76bfb08324c670d69c03be544"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.768967"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:20:26.768967"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>Retrieve all games created and registered for a given <code>APP_TOKEN_NAME</code>.</p>
+<h3 id='http-request-3'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game</code></p>
+
+<p><strong>Note: This command uses authorization which differs from the standard used for most other commands. Since this command retrieves information regarding all registered games, rather than for a specific game, the value found in the environment variable <code>APP_TOKEN_NAME</code> must be used in the authorization header instead of a specific api key.</strong></p>
+<h2 id='create-a-user-player'>Create a User (Player)</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{"email": "dev@test.io"}'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/user
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6753d59d-9fa3-44f8-bfda-29d64ae7f152"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"game_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab5b3d39-5324-402b-8276-9fcacdca6811"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fakeemail@fake.com"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xe0DA6ab11545043eF141Df24A9211b7792356D0c"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"wallet_user_uid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f5cca3b4-788e-4fa7-be98-cf1f6ac5972f"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:25:34.555304"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"updated_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"badf8f8e-9690-4806-893c-176dc78470a3"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-06-14T16:25:34.555304"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This endpoint creates a new player for your game and automatically creates a Wallet address to enable the player to transact and hold Game Coins, Stackable and Unique Assets. Creating a player will also generate an <code>id</code> used to pass as the player <code>USER_ID</code> to execute player actions including, initiating transactions and querying player details. </p>
+
+<p>The response includes the following: </p>
+
+<ul>
+<li><code>id</code> - This is the <code>USER_ID</code> for the individual player created. This ID can be used to initiate transactions and query player information. </li>
+<li><code>game_id</code> - The Game ID associated with the created player. </li>
+<li><code>email</code> - (<strong>OPTIONAL</strong>) This is an optional field and can be left empty. The email address of the created player.</li>
+<li><code>wallet_address</code> - The blockchain wallet address. Note, the <code>USER_ID</code> is used to initiate transactions. </li>
+<li><code>wallet_user_uid</code> - Created by the Wallet and can be ignored. NOTE: This is not the “id” or <code>USER_ID</code> used to query and transact. </li>
+<li><code>created_by</code> - The Developer Wallet <code>dev_user_id</code> that created the User.</li>
+<li><code>created_at</code> - UTC date of when the player was created. </li>
+<li><code>updated_by</code> - The Developer Wallet <code>dev_user_id</code> that last updated the User.</li>
+<li><code>updated_at</code> - UTC date of when the player was last updated. </li>
+</ul>
+<h3 id='http-request-4'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/user</code></p>
+<h3 id='url-parameters-2'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of game to create user for</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-3'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>email</td>
+<td>String</td>
+<td>(Optional) User&#39;s email address</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/user</code>
+</aside>
+<h2 id='get-user-balance'>Get User Balance</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/user/<span class="o">{</span>user_id<span class="o">}</span>
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TOK"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token_name"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"190177113409627147017492480768293327364543271987"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"stackables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1020847100762815390390123822295304634368"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"340282366920938463463374607431768211456"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"680564733841876926926749214863536422912"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Returns the balance for all Game Coin, Stackables and Unique Assets for a given <code>USER_ID</code>. This includes the <code>balance</code> of Game Coins staked to Stackable and Unique Assets. </p>
+<h3 id='http-request-5'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/user/&lt;USER_ID&gt;</code></p>
+<h3 id='url-parameters-3'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of game to get user balance from</td>
+</tr>
+<tr>
+<td>USER_ID</td>
+<td>ID of user to get balance of</td>
+</tr>
+</tbody></table>
+<h2 id='get-all-game-users'>Get all Game Users</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/user
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"users"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b9c78b96-d9da-41fc-8846-e2393c0b7376"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x7E0135f53AB0A9D4F614913B0c200a0f97d627B9"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3d697552-6e6d-41d8-ad5f-13229f3932d8"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"frank@totallyrealemail.com"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x76CF00FDe51c8FC44464BbEa220049c67F815FaE"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Returns all players for a given game by passing the <code>GAME_ID</code>.</p>
+<h3 id='http-request-6'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/user</code></p>
+<h3 id='url-parameters-4'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of game to fetch users from</td>
+</tr>
+</tbody></table>
+<h2 id='get-user-transactions'>Get User Transactions</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{"start_date": "2019-04-24T17:15:36.801682Z", "end_date": "2019-04-28T17:15:36.801682Z", "page": 1, "per_page": 10}'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/user/<span class="o">{</span>user_id<span class="o">}</span>/transactions
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"transaction_history"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"transaction_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"388892a0-c843-4cc4-b94d-45a4679ad4c5"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"wallet_from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x2bCf16681ce5a244b01A7E619Cce31577ec47089"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"wallet_to"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xE42CDaEd77c4E6DEDB613fBF9f0De823804EFf4c"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"nonce"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ERC20"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{</span><span class="se">\"</span><span class="s2">amount</span><span class="se">\"</span><span class="s2">: 10}"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"transaction_hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x00eac78f5d8902fcaa6b1e8ddb8f580dfdc610468e21b98e403b06a705075053"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"ip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0.0.0"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Pass a <code>USER_ID</code> to query a player’s transaction history by date.</p>
+
+<p>To query Developer Wallet Transactions you can pass the <code>DEV_USER_ID</code> generated and provided in the response upon creating a game to this endpoint.</p>
+
+<p><strong>NOTE: Make sure to enter appropriate UTC-encoded date formats for the transaction range.</strong></p>
+<h3 id='http-request-7'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/user/&lt;USER_ID&gt;/transactions</code></p>
+<h3 id='url-parameters-5'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>USER_ID</td>
+<td>ID of user to get transactions for</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-4'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>start_date</td>
+<td>String</td>
+<td>UTC-encoded timestamp indicating date/time to begin query</td>
+</tr>
+<tr>
+<td>end_date</td>
+<td>String</td>
+<td>UTC-encoded timestamp indicating date/time to end query</td>
+</tr>
+<tr>
+<td>page</td>
+<td>Number</td>
+<td>Pagination page, starts on page 1</td>
+</tr>
+<tr>
+<td>per_page</td>
+<td>Number</td>
+<td>Number of results to return per page, for pagination</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/user/{USER_ID}/transactions</code>
+</aside>
+<h2 id='get-developer-wallet-balance'>Get Developer Wallet Balance</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/wallet
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TOK"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000000</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"token_name"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"190177113409627147017492480768293327364543271987"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"stackables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1020847100762815390390123822295304634368"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"340282366920938463463374607431768211456"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"680564733841876926926749214863536422912"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This endpoint returns the Game Coins, Unique and Stackable Asset balances of the developer Wallet. The Developer Wallets account holds, manages and transfers Game Coins and Items between your developer account (Developer Wallet) and player (end-user) Wallet accounts. When you create a game, the Game Coins created are minted to your Developer Wallet account. </p>
+<h3 id='http-request-8'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/developer/wallet</code></p>
+<h3 id='url-parameters-6'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>The ID of the game to retrieve the developer balance of.</td>
+</tr>
+</tbody></table>
+<h2 id='create-token-pool'>Create Token Pool</h2><pre class="highlight shell tab-shell"><code>curl -X POST -d <span class="s1">'{
+    "name": "My Token Pool",
+    "max_tokens": 100,
+    "interval": ""
+}'</span> -H <span class="nv">$headers</span> <span class="se">\</span>
+http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/wallet/pool
+</code></pre>
+<blockquote>
+<p>Example Params for a pool without an interval</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My Token Pool"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"max_tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"interval"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"token_pool_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d03356a2-b262-4359-8b6a-21baf8455eb6"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My Token Pool"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"max_tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"interval"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The Token Pool Wallet is a secondary Wallet owned by the Developer Wallet account, designed to automatically refill and distribute tokens to players. Multiple Token Pool Wallets can be created to enable various game transactions and functions.</p>
+
+<p>Working with a limited amount of Game Coins, the main Token Pool Wallet will not run out. In the <code>interval</code> field, a developer may specify a cron expression to set how often a pool will be refilled. Transaction requests will be rejected if the Token Pool Wallet token supply is depleted. The <code>max_tokens</code> field sets the maximum number of tokens able to transfer to a Token Pool Wallet. Once this <code>max_tokens</code> is reached tokens will no longer automatically transfer to the Token Pool Wallet until this field is below the set max.</p>
+
+<p>For more information about cron expressions check out <a href="http://www.cronmaker.com/">cronmaker</a>. </p>
+
+<aside class="notice">
+    The `interval` field can expect either a valid cron expression as a string or an empty string to indicate that no cron interval will be set.
+</aside>
+<h3 id='http-request-9'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8088/api/v1/game/&lt;GAME_ID&gt;/developer/wallet/pool</code></p>
+<h3 id='url-parameters-7'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of game to create token pool wallet for</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-5'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>Name of token pool wallet</td>
+</tr>
+<tr>
+<td>max_tokens</td>
+<td>Number</td>
+<td>Maximum number of tokens to transfer into token pool</td>
+</tr>
+<tr>
+<td>interval</td>
+<td>String</td>
+<td>cron expression; how often the pool gets refilled.</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/developer/wallet/pool</code>
+</aside>
+<h2 id='get-token-pool-details'>Get Token Pool Details</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/wallet/pool/<span class="o">{</span>token_pool_id<span class="o">}</span>
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"token_pool_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d03356a2-b262-4359-8b6a-21baf8455eb6"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My Token Pool"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"max_tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"interval"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0 0 0 1/1 * ? *"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Retrieve details of a Token Pool Wallet including the current balance of <code>tokens</code> available, the set <code>max_tokens</code> and the Token Pool Wallet metadata. </p>
+<h3 id='http-request-10'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/developer/wallet/pool/&lt;TOKEN_POOL_ID&gt;</code></p>
+<h3 id='url-parameters-8'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of game with token pool wallet</td>
+</tr>
+<tr>
+<td>TOKEN_POOL_ID</td>
+<td>ID of token wallet to retrieve information about</td>
+</tr>
+</tbody></table>
+<h2 id='transfer-from-token-pool'>Transfer From Token Pool</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_to": "d03356a2-b262-4359-8b6a-21baf8455eb6",
+    "amount": 100
+}'</span> <span class="se">\</span>
+-H <span class="nv">$headers</span> <span class="se">\</span>
+http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/wallet/pool/<span class="o">{</span>token_pool_id<span class="o">}</span>/transfer
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"token_pool_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d03356a2-b262-4359-8b6a-21baf8455eb6"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My Token Pool"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"max_tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"interval"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0 0 0 1/1 * ? *"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Transfer Game Coins from a Token Pool Wallet to a User Wallet.</p>
+<h3 id='http-request-11'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/developer/wallet/pool/&lt;TOKEN_POOL_ID&gt;/transfer</code></p>
+<h3 id='url-parameters-9'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of game with token pool wallet</td>
+</tr>
+<tr>
+<td>TOKEN_POOL_ID</td>
+<td>ID of token pool wallet to transfer from</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-6'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>Recipient user id</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number</td>
+<td>The amount of tokens to transfer</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/developer/wallet/pool/{TOKEN_POOL_ID}/transfer</code>
+</aside>
+<h2 id='refill-token-pool'>Refill Token Pool</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/wallet/pool/<span class="o">{</span>token_pool_id<span class="o">}</span>/refill
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"token_pool_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d03356a2-b262-4359-8b6a-21baf8455eb6"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My Token Pool"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"max_tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"interval"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0 0 0 1/1 * ? *"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Transfers tokens from the Developer Wallet and refills a Token Pool Wallet to the level set in <code>max_tokens</code>. Example: If your Token Pool Wallet currently has 75 Game Coins and your <code>max_tokens</code> is set to 100, executing <code>/refill</code> will transfer 25 Game Coins from your Developer Wallet to the Token Pool Wallet.</p>
+<h3 id='http-request-12'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/developer/wallet/pool/&lt;TOKEN_POOL_ID&gt;/refill</code></p>
+<h3 id='url-parameters-10'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of game with token pool wallet</td>
+</tr>
+<tr>
+<td>TOKEN_POOL_ID</td>
+<td>ID of token pool to refill</td>
+</tr>
+</tbody></table>
+<h2 id='delete-token-pool'>Delete Token Pool</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+-X DELETE http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/wallet/pool/<span class="o">{</span>token_pool_id<span class="o">}</span>
+</code></pre>
+<p>Executing the DELETE function for a specified <code>TOKEN_POOL_ID</code> will delete the Token Pool Wallet and return any remaining Game Coins to the Developer Wallet.</p>
+<h3 id='http-request-13'>HTTP Request</h3>
+<p><code>DELETE http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/developer/wallet/pool/&lt;TOKEN_POOL_ID&gt;</code></p>
+<h3 id='url-parameters-11'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of game with token pool wallet</td>
+</tr>
+<tr>
+<td>TOKEN_POOL_ID</td>
+<td>ID of token wallet to delete</td>
+</tr>
+</tbody></table>
+<h2 id='mint-game-coins'>Mint Game Coins</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_to": "d03356a2-b262-4359-8b6a-21baf8455eb6",
+    "value": 10
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/token/mint
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Mint a deployed Game Coin (ERC-20 Token) and add to the existing supply to be used as the primary currency in your game. </p>
+<h3 id='http-request-14'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/token/mint</code></p>
+<h3 id='url-parameters-12'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-7'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>ID of user to mint tokens to</td>
+</tr>
+<tr>
+<td>value</td>
+<td>Number</td>
+<td>Number of tokens to mint</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/token/mint</code>
+</aside>
+<h2 id='transfer-game-coins'>Transfer Game Coins</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_from": "d03356a2-b262-4359-8b6a-21baf8455eb6",
+    "user_id_to": "2bfac8f4-04a0-4fd4-b282-2b11f108889b",
+    "amount": 1
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/token/transfer
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>This endpoint transfers Game Coins (ERC-20 Tokens) from one player to another player by passing the <code>user_id</code> in <code>user_id_from</code> and <code>user_id_to</code> respectively.</p>
+
+<p>Other Transctions include:</p>
+
+<p><a href="#transfer-tokens-from-dev-wallet">Transfer Game Coins from the Developer Wallet</a></p>
+
+<p><a href="#transfer-item">Transfer Unique Assets</a></p>
+
+<p><a href="#transfer-stackable-item">Transfer Stackable Assets</a></p>
+<h3 id='http-request-15'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/token/transfer</code></p>
+<h3 id='url-parameters-13'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-8'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>String</td>
+<td>ID of user to transfer tokens from</td>
+</tr>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>ID of user to transfer tokens to</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number</td>
+<td>Number of tokens to transfer</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+    Both wallets must be registered with the game.
+</aside>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/token/transfer</code>
+</aside>
+<h2 id='transfer-game-coins-from-dev-wallet'>Transfer Game Coins from Dev Wallet</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_to": "2bfac8f4-04a0-4fd4-b282-2b11f108889b",
+    "amount": 1
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/token/transfer
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Transfers a deployed Game Coin (ERC20 token) from the Developer Wallet to a player <code>user_to</code> Wallet.</p>
+<h3 id='http-request-16'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/developer/token/transfer</code></p>
+<h3 id='url-parameters-14'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-9'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>ID of user to transfer token to</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number</td>
+<td>Number of tokens to transfer</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/developer/token/transfer</code>
+</aside>
+<h2 id='mint-a-unique-item-asset'>Mint a Unique Item (Asset)</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_to": "d03356a2-b262-4359-8b6a-21baf8455eb6",
+    "creator_stake": 100,
+    "metadata": "{fire_power: 1000, max_cooldown: 5}",
+    "key": "item_key",
+    "pricing_curve_contract_id": "d03356a2-b262-4359-8b6a-21baf8455eb4"
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/item/mint
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1080760074800369048132675024553509235066712411322"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This endpoint allows you to create new Unique Assets. These Unique Assets (or Items) are minted as ERC-721 Tokens. You can define <code>metadata</code> to determine the Item’s attributes (e.g. fire power, cool down times, etc.). All game assets will require developers to stake Game Coins from the Developer Wallet when the asset is minted.</p>
+
+<p>Developers can choose one of two options when minting assets: </p>
+
+<ul>
+<li><p><code>creator_stake</code> - Developer defined number of Game Coins to be staked with asset upon minting.</p></li>
+<li><p><code>bonding_curve_shape</code>- <strong>(OPTIONAL)</strong> This field is optional and can be left empty. Game Coins will be staked to the asset based on a <code>pricing_curve_contract_id</code> from a previously <a href="#create-pricing-curve">created pricing curve</a>.</p></li>
+</ul>
+
+<aside class="notice">
+   Only Game Coins allocated via the `pricing_curve_contract_id` will reflect in an asset’s ‘balance’. As such, if a pricing curve is not specified, the `balance` of the Asset may reflect as “0” even if Game Coins were allocated in the `creator_stake`. In this case, the creator stake Game Coins are not held directly in the Asset.
+</aside>
+
+<aside class="notice">
+   If and when an Asset is burned (destroyed), the current owner of the Asset will receive the Game Coins set by the `pricing_curve_contract_id` back to their Wallet.
+</aside>
+<h3 id='http-request-17'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/item/mint</code></p>
+<h3 id='url-parameters-15'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-10'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>ID of user to mint item to</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>String</td>
+<td>JSON-encoded metadata</td>
+</tr>
+<tr>
+<td>creator_stake</td>
+<td>Number</td>
+<td>The inital amount of ERC-20s deposited into the item</td>
+</tr>
+<tr>
+<td>key</td>
+<td>String</td>
+<td>(Optional) Key that can be used to fetch metadata for the item</td>
+</tr>
+<tr>
+<td>pricing_curve_contract_id</td>
+<td>String</td>
+<td>(Optional) ID of the pricing curve</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/item/mint</code>
+</aside>
+<h2 id='transfer-unique-item-between-users'>Transfer Unique Item Between Users</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_from": "d03356a2-b262-4359-8b6a-21baf8455eb6",
+    "user_id_to": "2bfac8f4-04a0-4fd4-b282-2b11f108889b",
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/item/<span class="o">{</span>item_id<span class="o">}</span>/transfer
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Transfer a minted Unique Asset (ERC-721 token) from one player (‘user_id_from’) to another player (‘user_id_to’).</p>
+<h3 id='http-request-18'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/item/&lt;ITEM_ID&gt;/transfer</code></p>
+<h3 id='url-parameters-16'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>GAME_ID</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>String</td>
+<td>ITEM_ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-11'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>String</td>
+<td>ID of user to transfer item from</td>
+</tr>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>ID of user to transfer item to</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+    Both wallets must be registered with the game.
+</aside>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/{GAME_ID}/item/{ITEM_ID}/transfer</code>
+</aside>
+<h2 id='transfer-unique-item-from-developer-to-user'>Transfer Unique Item From Developer to User</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_to": "2bfac8f4-04a0-4fd4-b282-2b11f108889b",
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/item/<span class="o">{</span>item_id<span class="o">}</span>/transfer
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Transfer a minted Unique Asset from the Developer Wallet to a player (<code>user_id_to</code>) Wallet. You do not need to provide the Developer Wallet, executing this will automatically use the Developer Wallet associated with the given <code>GAME_ID</code>.</p>
+<h3 id='http-request-19'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/developer/item/&lt;ITEM_ID&gt;/transfer</code></p>
+<h3 id='url-parameters-17'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>String</td>
+<td>Item ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-12'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>ID of user to transfer tokens to</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/developer/item/{ITEM_ID}/transfer</code>
+</aside>
+<h2 id='burn-unique-item'>Burn Unique Item</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> -d <span class="s1">'{"user_id_from": "9b10fa3d-cf6c-4a22-9c4a-f0356cc3de29"}'</span> <span class="se">\</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/item/<span class="o">{</span>item_id<span class="o">}</span>/burn
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Burns (destroys) a specified Unique Asset. When an Item is burned (destroyed), the current owner of the Item will receive the Game Coins set in the <code>creator_stake</code> back to their Wallet.</p>
+<h3 id='http-request-20'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/item/&lt;ITEM_ID&gt;/burn</code></p>
+<h3 id='url-parameters-18'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>String</td>
+<td>Item ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-13'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>String</td>
+<td>User ID of current item owner</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/item/{ITEM_ID}/burn</code>
+</aside>
+<h2 id='get-unique-item-details'>Get Unique Item Details</h2><pre class="highlight shell tab-shell"><code>curl <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/item/<span class="o">{</span>item_id<span class="o">}</span>
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"874619939929244439599189760038633387039161848844"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9b10fa3d-cf6c-4a22-9c4a-f0356cc3de29"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tokens"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"ERC20BalanceCondensed"</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TOK"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"ERC20BalanceCondensed"</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC Token"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TBC"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"fire_power"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"max_cooldown"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>View a Unique Asset’s Game Coin balance, metadata, and owner id.</p>
+<h3 id='http-request-21'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/item/&lt;ITEM_ID&gt;</code></p>
+<h3 id='url-parameters-19'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>String</td>
+<td>Item ID</td>
+</tr>
+</tbody></table>
+<h2 id='deposit-game-coins-from-user-to-item'>Deposit Game Coins from User to Item</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    user_id_from: "e082e288-3cae-4795-8be0-60b5def154b2",
+    token_id: "190177113409627147017492480768293327364543271987",
+    amount: 1,
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/token/deposit
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Transfer deployed Game Coins (ERC-20 tokens) from a player&#39;s Wallet to a Unique or Stackable Asset. This will add to the <code>balance</code> for the specified Item.</p>
+<h3 id='http-request-22'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/token/deposit</code></p>
+<h3 id='url-parameters-20'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-14'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>String</td>
+<td>ID of user to transfer tokens from</td>
+</tr>
+<tr>
+<td>token_id</td>
+<td>String</td>
+<td>ID of item to deposit tokens into</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number</td>
+<td>Number of tokens to deposit</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">The originating wallet must exist for the game and the item must already be minted.</aside>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/token/deposit</code>
+</aside>
+<h2 id='deposit-game-coins-from-developer-to-item'>Deposit Game Coins From Developer to Item</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    token_id: "190177113409627147017492480768293327364543271987",
+    amount: 1,
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/developer/token/deposit
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Transfer Game Coins (ERC-20) tokens from the Developer Wallet to a Unique or Stackable Asset. This will add to the <code>balance</code> for the specified Item.</p>
+<h3 id='http-request-23'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/developer/token/deposit</code></p>
+<h3 id='url-parameters-21'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-15'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>token_id</td>
+<td>String</td>
+<td>ID of item to deposit tokens into</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number</td>
+<td>Number of tokens to deposit</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/developer/token/deposit</code>
+</aside>
+<h2 id='create-stackable-asset-type'>Create Stackable Asset Type</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "metadata": {"name": "Strip of leather"},
+    "key": "stackable_key"
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/stackable
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Strip of leather"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2381976568446569244243622252022377480192"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Stackable Assets are a “asset class” or “type” (based on the ERC-1155 specification) of assets that do not require a record of state (e.g. “evolved” or “level-up”) or transaction history (e.g. A Unique Item once owned by Sir Patrick Stewart).  As an example, Stackable Assets can be used when players collect multiples of crafting materials (e.g. leather scraps, wood, brick) or multiples of the same cards in a deck. Multiple Stackable Asset types can be created.</p>
+
+<p>This endpoint creates a Stackable Asset type and returns an <code>id</code> for the Stackable Asset. The <code>id</code> can be used to mint new Stackable Assets and transfer to players as needed. </p>
+
+<p>You can use the <code>metadata</code> parameter to assign a unique identifier and metadata such as Name, Description and image (e.g. leather scraps, wood, brick) for each Stackable Asset Type.</p>
+<h3 id='http-request-24'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/stackable</code></p>
+<h3 id='url-parameters-22'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-16'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>metadata</td>
+<td>String</td>
+<td>JSON metadata about the stackable item</td>
+</tr>
+<tr>
+<td>key</td>
+<td>String</td>
+<td>Optional key that can be used to fetch metadata about the item</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/stackable</code>
+</aside>
+<h2 id='mint-stackable-assets'>Mint Stackable Assets</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+        "user_id_to" : "637b02f2-6a21-40b8-bf95-cf37e7fb66be",
+        "amount" : 100,
+        "stake_value": 5000
+        }'</span> <span class="se">\</span>
+    -X  POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/stackable/<span class="o">{</span>id<span class="o">}</span>/mint <span class="se">\</span>
+    -H <span class="nv">$headers</span>
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Scraps of leather"</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="s2">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e082e288-3cae-4795-8be0-60b5def154b2"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2381976568446569244243622252022377480192"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Before minting Stackable Assets, it is required to first create the Stackable Asset Type. You can mint (create) one or many Stackable Assets from a previously created Stackable Asset Type and transfer to a single player.</p>
+
+<ul>
+<li><code>user_id_to</code> - The <code>USER_ID</code> of the player you would like to transfer the Stackable Assets to.</li>
+<li><code>amount</code> The number of Stackable Assets you would like to send to the player.</li>
+<li><code>stake_value</code> - The amount (if different from the pricing curve) to stake to the newly minted assets. </li>
+</ul>
+
+<aside class="notice">
+ If `stake_value` is less than the amount required by the pricing curve for that class of stackable the operation will fail.
+ </aside>
+
+### HTTP Request
+
+`POST http://localhost:8088/api/v1/game/<GAME_ID>/stackable/<STACKABLE_ID>/mint`
+
+### URL Parameters
+
+| Parameter    | Type   | Description       |
+| ------------ | ------ | ----------------- |
+| GAME_ID      | String | Game ID           |
+| STACKABLE_ID | String | Stackable Item ID |
+
+### Body Parameters
+
+| Parameter   | Type   | Description                               |
+| ----------- | ------ | ----------------------------------------- |
+| user_id_to  | String | ID of user to mint stackable items to     |
+| amount      | Number | Number of stackable items to mint         |
+| stake_value | Number | Amount of game coins to stake for minting |
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/stackable/{STACKABLE_ID}/mint</code>
+</aside>
+<h2 id='burn-stackable-asset'>Burn Stackable Asset</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "amount" : 8,
+    "user_id_from": "e082e288-3cae-4795-8be0-60b5def154b2"
+  }'</span> <span class="se">\</span>
+  -X  POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/stackable/<span class="o">{</span>id<span class="o">}</span>/burn <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e082e288-3cae-4795-8be0-60b5def154b2"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Removes (burns) a number of Stackable Assets from a single user.</p>
+<h3 id='http-request-25'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/stackable/&lt;STACKABLE_ID&gt;/burn</code></p>
+<h3 id='url-parameters-23'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>STACKABLE_ID</td>
+<td>String</td>
+<td>Stackable Item ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-17'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>String</td>
+<td>ID of user to burn stackable items from</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number</td>
+<td>Number of stackable items to burn</td>
+</tr>
+</tbody></table>
+<h3 id='response-parameters'>Response Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id</td>
+<td>String</td>
+<td>ID of user to burn stackable items from</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>Number</td>
+<td>Number of stackable items burned</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/stackable/{STACKABLE_ID}/burn</code>
+</aside>
+<h2 id='transfer-stackable-asset'>Transfer Stackable Asset</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_from": "637b02f2-6a21-40b8-bf95-cf37e7fb66be",
+    "user_id_to": "637b02f2-6a21-40b8-bf95-cf37e7fb66be",
+    "amount": 1
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/stackable/<span class="o">{</span>stackable_id<span class="o">}</span>/transfer
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TransactionConfirmed"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user_id_from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9d103588-0630-42c0-97ce-a96c0f70a2ef"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user_id_to"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9d103588-0630-42c0-97ce-a96c0f70a2ef"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"340282366920938463463374607431768211456"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Users can transfer Stackable Assets as a peer-to-peer transaction. This endpoint enables the transfer of a single specified Stackable Asset type between two players; <code>user_id_from</code> to <code>user_id_to</code>.</p>
+
+<p>Use the <code>amount</code> parameter to define the number of Stackable Assets you would like to transfer  from <code>user_id_from</code> to <code>user_id_to</code>. If <code>user_id_from</code> does not have enough Stackable Assets available in their Wallet, the transfer will fail.</p>
+<h3 id='http-request-26'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/stackable/&lt;STACKABLE_ID&gt;/transfer</code></p>
+<h3 id='url-parameters-24'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>STACKABLE_ID</td>
+<td>String</td>
+<td>Stackable Item ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-18'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>String</td>
+<td>ID of user to send stackable items from</td>
+</tr>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>ID of user to send stackable items to</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>u64</td>
+<td>Amount of stackable items to send</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/stackable/{STACKABLE_ID}/transfer</code>
+</aside>
+<h2 id='transfer-batch-of-stackable-assets'>Transfer Batch of Stackable Assets</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "user_id_from": "637b02f2-6a21-40b8-bf95-cf37e7fb66be",
+    "user_id_to": "637b02f2-6a21-40b8-bf95-cf37e7fb66be",
+    "token_ids": ["4083388403051261561560495289181218537472", "340282366920938463463374607431768211456"],
+    "amounts": [1, 5]
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/stackable/transfer
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TransactionConfirmed"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user_id_from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9d103588-0630-42c0-97ce-a96c0f70a2ef"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user_id_to"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9d103588-0630-42c0-97ce-a96c0f70a2ef"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"amounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">],</span><span class="w">
+  </span><span class="s2">"token_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"4083388403051261561560495289181218537472"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"340282366920938463463374607431768211456"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Most games will utilize multiple Stackable Asset Types. You can batch transfer multiple Stackable Asset Types by passing an array of multiple, comma-delimited Stackable Asset <code>token_ids</code> and respective <code>amounts</code> for each token id. </p>
+<h3 id='http-request-27'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/stackable/transfer</code></p>
+<h3 id='url-parameters-25'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-19'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id_from</td>
+<td>String</td>
+<td>User ID to transfer stackable item from</td>
+</tr>
+<tr>
+<td>user_id_to</td>
+<td>String</td>
+<td>User ID to transfer stackable item to</td>
+</tr>
+<tr>
+<td>amounts</td>
+<td>[u64]</td>
+<td>Numbers of stackable items to send</td>
+</tr>
+<tr>
+<td>token_ids</td>
+<td>[String]</td>
+<td>IDs of stackable item classes to send</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">The <code>amounts</code> and <code>token_ids</code> fields must be the same length.</aside>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/stackable/transfer</code>
+</aside>
+<h2 id='get-all-stackable-asset-types-for-a-game'>Get all Stackable Asset Types for a Game</h2><pre class="highlight shell tab-shell"><code>curl <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/stackable
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2381976568446569244243622252022377480192"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Scraps of Leather"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2041694201525630780780247644590609268736"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bundles of Wood"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1701411834604692317316873037158841057280"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Rocks"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>You can retrieve a list of all Stackable Asset Types for a given <code>GAME_ID</code> including details for each individual Stackable Assets.</p>
+
+<p>The response will return: </p>
+
+<ul>
+<li><p><code>id</code> - The Stackable Asset ID generated when you created the asset</p></li>
+<li><p><code>metadata</code> - Developer defined metadata (e.g. asset name, description, images) associated with the Stackable Asset. </p></li>
+</ul>
+<h3 id='http-request-28'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/stackable</code></p>
+<h3 id='url-parameters-26'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h2 id='get-metadata-for-stackable-asset-type'>Get metadata for Stackable Asset Type</h2><pre class="highlight shell tab-shell"><code>curl <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/stackable/<span class="o">{</span>id<span class="o">}</span>
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2381976568446569244243622252022377480192"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Scraps of Leather"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>You can retrieve the developer defined metadata for a specific Stackable Asset type by passing the <code>TOKEN_ID</code>.</p>
+<h3 id='http-request-29'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/stackable/&lt;TOKEN_ID&gt;</code></p>
+<h3 id='url-parameters-27'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>TOKEN_ID</td>
+<td>String</td>
+<td>Stackable Item Id</td>
+</tr>
+</tbody></table>
+<h2 id='get-staked-amount-for-stackable-asset-class'>Get Staked Amount for Stackable Asset Class</h2><pre class="highlight shell tab-shell"><code>curl <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/stackable/<span class="o">{</span>id<span class="o">}</span>/stake
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"liquidity_manager"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x..."</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"staking_currency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x..."</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"balance"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Retrieves the total amount of Game Coins staked for a given Stackable Asset Type.</p>
+<h3 id='http-request-30'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/stackable/&lt;TOKEN_ID&gt;/stake</code></p>
+<h3 id='url-parameters-28'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>TOKEN_ID</td>
+<td>String</td>
+<td>Stackable Item Id</td>
+</tr>
+</tbody></table>
+<h2 id='create-pricing-curve'>Create Pricing Curve</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+  -d <span class="s1">'{
+    "slope": 1.0
+  }'</span> <span class="se">\</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/pricing-curve
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"pricing_curve_contract_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2ac77871-6daf-413b-a556-5068a3d4ebe5"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Create a standalone pricing curve to be applied when minting Stackable and Unique Assets. Only linear slopes are supported at this time. Slope is expressed as a decimal value that specifies the rate at which price increases relative to supply. Pricing curves can be referenced from other contracts like Stackable and Unique Assets. </p>
+
+<p>Executing this will return a <code>pricing_curve_contract_id</code>. This pricing curve ID can be passed upon minting new assets to stake Game Coins per the defined slope.</p>
+<h3 id='http-request-31'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/pricing-curve</code></p>
+<h3 id='url-parameters-29'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-20'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>slope</td>
+<td>Number</td>
+<td>Linear slope at which price increases relative to supply</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/pricing-curve</code>
+</aside>
+<h2 id='push-a-partition-onto-a-pricing-curve'>Push a Partition onto a Pricing Curve</h2><pre class="highlight shell tab-shell"><code>curl -d <span class="s1">'{
+    "start_point": 10,
+    "slope": 2.0
+  }'</span> <span class="se">\</span>
+  -H <span class="nv">$headers</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/pricing-curve/<span class="o">{</span>pricing_curve_contract_id<span class="o">}</span>/push
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Push a new linear partition onto a pricing curve that will start at supply of <code>start_point</code>.</p>
+<h3 id='http-request-32'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/pricing-curve/&lt;PRICING_CURVE_CONTRACT_ID&gt;/push</code></p>
+<h3 id='url-parameters-30'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>PRICING_CURVE_CONTRACT_ID</td>
+<td>String</td>
+<td>Contract ID of Pricing Curve</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-21'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>start_point</td>
+<td>Number</td>
+<td>Supply at which to start the pricing curve partition</td>
+</tr>
+<tr>
+<td>slope</td>
+<td>Number</td>
+<td>Linear slope at which price increases relative to supply</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+  Async route: <code>/api/v1/async/game/{GAME_ID}/pricing-curve/{PRICING_CURVE_CONTRACT_ID}/push</code>
+</aside>
+<h2 id='remove-the-last-pricing-curve-partition'>Remove the last Pricing Curve Partition</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+  -X POST http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/pricing-curve/<span class="o">{</span>pricing_curve_contract_id<span class="o">}</span>/pop
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>200 OK
+</code></pre>
+<p>Remove (pop) the last partition off a given pricing curve contract.</p>
+<h3 id='http-request-33'>HTTP Request</h3>
+<p><code>POST http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/pricing-curve/&lt;PRICING_CURVE_CONTRACT_ID&gt;/pop</code></p>
+<h3 id='url-parameters-31'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>PRICING_CURVE_CONTRACT_ID</td>
+<td>String</td>
+<td>Contract ID of Pricing Curve</td>
+</tr>
+</tbody></table>
+<h2 id='get-block-number'>Get Block Number</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/chain/block
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w"> </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>This endpoint returns the current number of validated blocks created for your games blockchain instance.</p>
+
+<p>All transactions are written to a “block” on your individual game blockchain. Once all transactions in a block are validated, the block is closed and a new one is created along with a reference to the previous block. You can think of each “block” as a link in a chain.   </p>
+<h3 id='http-request-34'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/chain/block</code></p>
+<h3 id='url-parameters-32'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+</tbody></table>
+<h2 id='get-order-status'>Get Order Status</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="nv">$headers</span> <span class="se">\</span>
+  -X GET http://localhost:8088/api/v1/game/<span class="o">{</span>id<span class="o">}</span>/order/<span class="o">{</span>order_id<span class="o">}</span>
+</code></pre><h3 id='the-returned-status-indictes-the-state-of-the-request'>The returned status indictes the state of the request</h3>
+<p>The returned status indicates the state of the request with respect to the on-chain status. </p>
+
+<ul>
+<li><p>Pending: The transaction has not yet been confirmed on the chain.</p></li>
+<li><p>Completed: The transaction has successfully completed and is “recorded” on-chain.</p></li>
+<li><p>Error: Some internal error has happened and the transaction data was not recorded on-chain.</p></li>
+</ul>
+
+<p>A 404 response is returned when the <code>order_id</code> is not found in the system for a given game id.</p>
+
+<p>Fetches the order status based on the <code>order_id</code> and <code>game_id</code>.</p>
+
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pending"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Fetches the order status based on the order id and game id</p>
+<h3 id='http-request-35'>HTTP Request</h3>
+<p><code>GET http://localhost:8088/api/v1/game/&lt;GAME_ID&gt;/order/&lt;ORDER_ID&gt;/</code></p>
+<h3 id='url-parameters-33'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>String</td>
+<td>Game ID</td>
+</tr>
+<tr>
+<td>ORDER_ID</td>
+<td>String</td>
+<td>ORDER ID</td>
+</tr>
+</tbody></table>

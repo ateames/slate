@@ -1,0 +1,455 @@
+<h1 id='marketplace-api'>Marketplace API</h1>
+<p>The Forte Automated Marketplace (AMM) is a dedicated API service for executing buys, sells and trades between players and the Automated Marketplace. The Automated Marketplace API is configured to run on a different port than the Platform API. If you get a 404 response, double check the hostname and port.</p>
+
+<p>The default URL for interacting with the Marketplace API is <code>http://0.0.0.0:8090/</code></p>
+
+<p>Executing the Trade Option - If the player agrees to the Asset Price and has the required Game Coin balance, they can execute the Trade Option before it expires. This will record the transaction on-chain and generate a transaction hash. 
+Transaction Success - Once successfully executed, the AMM service will record the transaction on the blockchain and return the transaction_hash for future reference. </p>
+<h3 id='trade-options'>Trade Options</h3>
+<p>Executing a request to sell to the AMM will not exchange immediately, but instead will generate a Trade Option. A Trade Option is an agreement between the Automated Marketplace and the Player that gives the player an option to sell (or buy) an asset for a predetermined price, defined by the Automated Marketplace. This allows the player to preview and accept or deny the AMM price before agreeing to the exchange.</p>
+<h2 id='deposit-game-coins-to-the-amm'>Deposit Game Coins to the AMM</h2>
+<p>Before using the AMM, you will first need to transfer Game Coins from the Developer Wallet to be sure you have enough Game Coins (liquidity) available to initiate and execute transactions. This allows players to sell assets directly to the AMM, providing maximum tradeability (liquidity) for player owned assets.</p>
+<pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/</span><span class="nv">$GAME_ID</span><span class="s2">/deposit"</span> <span class="se">\</span>
+     -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+     -H <span class="s1">'Authorization: Bearer $API_KEY'</span> <span class="se">\</span>
+     -d <span class="s1">$'{ "amount": 1000 }'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns the current balance for the AMM:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='http-request'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/deposit</code></p>
+<h3 id='url-parameters'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>amount</td>
+<td>Amount of tokens to deposit</td>
+</tr>
+</tbody></table>
+<h2 id='getting-the-current-balance-for-the-amm'>Getting the current balance for the AMM</h2>
+<p>Get the current available Game Coin balance in the AMM.</p>
+<pre class="highlight shell tab-shell"><code>curl -X GET <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/</span><span class="nv">$GAME_ID</span><span class="s2">/balance"</span> <span class="se">\</span>
+     -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+     -H <span class="s1">'Authorization: Bearer $API_KEY'</span> <span class="se">\</span>
+</code></pre>
+<blockquote>
+<p>The above command returns the current balance for the AMM:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='http-request-2'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/balance</code></p>
+<h3 id='url-parameters-2'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h2 id='selling-a-unique-item-to-the-amm'>Selling a Unique Item to the AMM</h2>
+<p>You can request to sell a\ Unique Item to the AMM. Executing a sell will generate a Sell Trade Option and allow the player to execute and complete the transaction. </p>
+
+<p>Trade Option Attributes: </p>
+
+<ul>
+<li><code>Trade_type</code> - Determined by executing a buy, sell or trade</li>
+<li><code>user_wallet_address</code> - The selling or buying player Wallet address for a specific item </li>
+<li><code>item_id</code> - The Unique Item ID</li>
+<li><code>price</code> - the Game Coin value determined by the AMM’s price curve used to display a guaranteed price the AMM is willing to pay the player for the Item. This allows the player to know the sell or buy price for individual items in the respective Game Coins before agreeing to the exchange.</li>
+<li><code>valid_until</code> - An expiration date and time that determines how long the player has to execute the buy or sell before the “offer” expires and the transaction is terminated. </li>
+<li><code>tag</code> - Tags can be ignored as they will likely be removed in a future update.</li>
+</ul>
+<pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/</span><span class="nv">$GAME_ID</span><span class="s2">/item/</span><span class="nv">$ITEM_ID</span><span class="s2">/sell"</span> <span class="se">\</span>
+     -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+     -H <span class="s1">'Authorization: Bearer $API_KEY'</span> <span class="se">\</span>
+     -d <span class="s1">$'{ "user_id": "$USER_ID" }'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns the Trade Option:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8db0177f-bb92-4f39-91b4-a8b52481733b"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"trade_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sell"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user_wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x881a618ed68546006878cee835cf0e9d5e25ff7e"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"item_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1182899485466738358818149947060468042005224297909"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"valid_until"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-09-14T23:24:16.920304Z"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='http-request-3'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/item/&lt;ITEM_ID&gt;/sell</code></p>
+<h3 id='url-parameters-3'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>ID of item to sell</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-2'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id</td>
+<td>ID of the user that is selling</td>
+</tr>
+</tbody></table>
+<h2 id='executing-the-trade-option-for-unique-item'>Executing the Trade Option for Unique Item</h2>
+<p>On the returned Trade Option, we can see the <code>price</code> the AMM is willing to pay for the Item and <code>valid_until</code> date and time. If the player agrees within the expiration date, we need to execute and complete the transaction. Once successfully executed, the AMM service will record the transaction on the blockchain and return the <code>transaction_hash</code> for future reference. </p>
+
+<p>The trade will fail if the AMM or the player does not have the required Item or Game Coins available. </p>
+
+<p>If the <code>valid_until</code> date and time expires prior to executing the Trade Option, the transaction will be terminated and all Game Coins and Item will be returned to the user and AMM (developer) respectively. </p>
+<pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/</span><span class="nv">$GAME_ID</span><span class="s2">/item/</span><span class="nv">$ITEM_ID</span><span class="s2">/sell"</span> <span class="se">\</span>
+     -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+     -H <span class="s1">'Authorization: Bearer $API_KEY'</span> <span class="se">\</span>
+     -d <span class="s1">$'{
+  "id": "8db0177f-bb92-4f39-91b4-a8b52481733b",
+  "price": 10,
+  "user_wallet_address": "0x881a618ed68546006878cee835cf0e9d5e25ff7e",
+  "tag": "",
+  "valid_until": "2019-09-14T23:24:16.920304Z",
+  "item_id": "1182899485466738358818149947060468042005224297909",
+  "trade_type": "Sell"
+}'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns whether the trade was successful,
+the transaction hash for it in the chain and the trade option.</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transaction_hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xde333960224622f99d660a58350621dda30d0f36368c59b691184a1834fb5269"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"trade_option"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8db0177f-bb92-4f39-91b4-a8b52481733b"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"trade_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sell"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"user_wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x881a618ed68546006878cee835cf0e9d5e25ff7e"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"item_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1182899485466738358818149947060468042005224297909"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"valid_until"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-09-14T23:24:16.920304Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='http-request-4'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/item/execute</code></p>
+<h3 id='url-parameters-4'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-3'>Body Parameters</h3>
+<p>The body should be exactly what was received from <a href="#selling-an-item-to-the-amm">Selling an item to the AMM</a></p>
+<h2 id='buying-unique-item-from-the-amm'>Buying Unique Item from the AMM</h2>
+<p>Buying Unique Items from the AMM is a similar process as selling. By executing the Marketplace /buy service, a Trade Option is generated and the user can choose to execute and complete the transaction using <a href="#executing-the-trade-option">same endpoint to execute it</a>. Once approved by the user, the AMM service will record the transaction on the blockchain and return the <code>transaction_hash</code>.</p>
+<pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/</span><span class="nv">$GAME_ID</span><span class="s2">/item/</span><span class="nv">$ITEM_ID</span><span class="s2">/buy"</span> <span class="se">\</span>
+     -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+     -H <span class="s1">'Authorization: Bearer $API_KEY'</span> <span class="se">\</span>
+     -d <span class="s1">$'{ "user_id": "$USER_ID" }'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns the Trade Option:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c3da9fc0-3961-49c4-86b6-f91b6024992b"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"trade_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Buy"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user_wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x881a618ed68546006878cee835cf0e9d5e25ff7e"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"item_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1182899485466738358818149947060468042005224297909"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"valid_until"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-09-14T23:27:54.267816Z"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='http-request-5'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/item/&lt;ITEM_ID&gt;/buy</code></p>
+<h3 id='url-parameters-5'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>ITEM_ID</td>
+<td>ID of item to buy</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-4'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id</td>
+<td>ID of the user that is buying</td>
+</tr>
+</tbody></table>
+<h2 id='get-unique-item-listing'>Get Unique Item Listing</h2>
+<p>Returns a listing of all current Unique Items being sold by the AMM. </p>
+<pre class="highlight shell tab-shell"><code>curl -X GET <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/</span><span class="nv">$GAME_ID</span><span class="s2">/item"</span> <span class="se">\</span>
+     -H <span class="s1">'Authorization: Bearer $API_KEY'</span>
+</code></pre>
+<blockquote>
+<p>The above return a list of item IDs together with its estimated price</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"item"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1039306322283532498113112889386888021881223103599"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre><h3 id='http-request-6'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/item</code></p>
+<h3 id='url-parameters-6'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h3 id='http-request-7'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/item</code></p>
+<h3 id='url-parameters-7'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
+<h2 id='sell-stackable-assets-to-the-amm'>Sell Stackable Assets to the AMM</h2>
+<p>Creates a Sell Trade Option for Stackable Assets. Once the Trade Option has been created, you can execute the <a href="#execute-trade-order-for-stackables">Trade Order for Stackables</a></p>
+<pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/{game_id}/stackables/{stackable_id}/sell"</span> <span class="se">\</span>
+     -H <span class="nv">$headers</span> <span class="se">\</span>
+     -d <span class="s1">$'{ "user_id": "{user_id}", "amount": 10 }'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns the Trade Option:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7216d83b-6139-4e19-a47a-b1136d329f15"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"trade_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sell"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user_wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x881a618ed68546006878cee835cf0e9d5e25ff7e"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x700000000000000000000000000000000"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"valid_until"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-09-15T20:37:37.729311Z"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='http-request-8'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/stackables/&lt;STACKABLE_ID&gt;/sell</code></p>
+<h3 id='url-parameters-8'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>STACKABLE_ID</td>
+<td>ID of stackable</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-5'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id</td>
+<td>ID of the user that is selling</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>how many items to sell</td>
+</tr>
+</tbody></table>
+<h2 id='buy-stackable-assets-from-the-amm'>Buy Stackable Assets from the AMM</h2>
+<p>Creates a Buy Trade Option for Stackable Assets. </p>
+<pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/{game_id}/stackables/{stackable_id}/buy"</span> <span class="se">\</span>
+     -H <span class="nv">$headers</span> <span class="se">\</span>
+     -d <span class="s1">$'{ "user_id": "{user_id}", "amount": 10 }'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns the Trade Option:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6ec60a81-86c0-4158-a7e0-8d5ebe698817"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"trade_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Buy"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user_wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x881a618ed68546006878cee835cf0e9d5e25ff7e"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x700000000000000000000000000000000"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"valid_until"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-09-15T20:41:00.945611Z"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h3 id='http-request-9'>HTTP Request</h3>
+<p><code>POST http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/stackables/&lt;STACKABLE_ID&gt;/buy</code></p>
+<h3 id='url-parameters-9'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+<tr>
+<td>STACKABLE_ID</td>
+<td>ID of stackable</td>
+</tr>
+</tbody></table>
+<h3 id='body-parameters-6'>Body Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>user_id</td>
+<td>ID of the user that is selling</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>how many items to sell</td>
+</tr>
+</tbody></table>
+<h2 id='execute-trade-order-for-stackable-assets'>Execute Trade Order for Stackable Assets</h2>
+<p><strong>Trading Stackable Assets are still in development and executing an order will not work for now.</strong></p>
+<pre class="highlight shell tab-shell"><code>curl -X POST <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/{game_id}/stackables/execute"</span> <span class="se">\</span>
+     -H <span class="nv">$headers</span> <span class="se">\</span>
+     -d <span class="s1">$'{
+  "amount": 10,
+  "id": "6ec60a81-86c0-4158-a7e0-8d5ebe698817",
+  "price": "1",
+  "user_wallet_address": "0x881a618ed68546006878cee835cf0e9d5e25ff7e",
+  "tag": "",
+  "valid_until": "2019-09-15T20:41:00.945611Z",
+  "token_id": "0x700000000000000000000000000000000",
+  "trade_type": "Buy"
+}'</span>
+</code></pre>
+<blockquote>
+<p>The above command returns the Trade Option:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"transaction_hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"trade_option"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6ec60a81-86c0-4158-a7e0-8d5ebe698817"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"trade_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Buy"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"user_wallet_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x881a618ed68546006878cee835cf0e9d5e25ff7e"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x700000000000000000000000000000000"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"valid_until"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-09-15T20:41:00.945611Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre><h2 id='get-stackable-listing'>Get Stackable Listing</h2>
+<p>Returns a listing of all current Stackable Assets being sold by the AMM. </p>
+<pre class="highlight shell tab-shell"><code>curl -X GET <span class="se">\</span>
+  <span class="s2">"http://localhost:8090/api/v1/game/</span><span class="nv">$GAME_ID</span><span class="s2">/stackables"</span> <span class="se">\</span>
+     -H <span class="s1">'Authorization: Bearer $API_KEY'</span>
+</code></pre>
+<blockquote>
+<p>The above return a list of stackable IDs together with the estimated price
+for one item in the stack</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"token_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2381976568446569244243622252022377480192"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10"</span><span class="w">
+    </span><span class="s2">"amount"</span><span class="p">:</span><span class="w"> </span><span class="s2">"200"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre><h3 id='http-request-10'>HTTP Request</h3>
+<p><code>GET http://0.0.0.0:8090/api/v1/game/&lt;GAME_ID&gt;/stackables</code></p>
+<h3 id='url-parameters-10'>URL Parameters</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>GAME_ID</td>
+<td>ID of the game</td>
+</tr>
+</tbody></table>
